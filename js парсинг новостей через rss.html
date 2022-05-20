@@ -1,0 +1,226 @@
+<script src="https://rss2json.com/gfapi.js"></script>
+<script>
+	//Вывод новостей через rss
+	
+	
+	//Вызов источника по умолчанию
+	edaily()
+	
+	
+	//источник edaily
+	//по нажатию на вкладку "mailru" новости очищаются, после чего выводится список последних новостей, полученных через rss google js api
+	function edaily(){
+		
+		//Вызов функции для отрисовки новостей через api google и изменение цвета вкладки
+		$(document).ready(function(){
+			google.setOnLoadCallback(initialize);
+			$('#edaily').css('color','#ff5900')
+			$('#mailru').css('color','black')
+		})
+		
+		//Функция отрисовки новостей
+		function initialize() {
+			google.load("feeds", "5");
+
+			//ссылка на rss ресурс
+			var feed = new google.feeds.Feed("https://eadaily.com/ru/rss/index.xml");
+			feed.load(function(result) {
+				if (!result.error) {
+					//получение данных о записи под номером 0 для открытия первой по списку новости по умолчанию
+					var entry = result.feed.entries[0];
+
+					//Название контейнера, в котором хранится список новостей
+					var container = document.getElementById("feed");
+
+
+					//Вызов функции очистки имеющегося контента, чтобы при переключении источника контент не вставлялся дважды
+					clear()
+
+					//настройки предпросмотра новостей (справа от списка новостей)
+					var fastWatch = document.getElementById("feed-news__watch")
+					var h4_2 = document.createElement("h4")
+					h4_2.className = 'feed-news__watch-header';
+					var watchContent = document.createElement("p")
+					watchContent.className = 'feed-news__watch-content'
+
+
+					h4_2.appendChild(document.createTextNode(entry.title));
+					fastWatch.appendChild(h4_2)
+					watchContent.appendChild(document.createTextNode(entry.content))
+					fastWatch.appendChild(watchContent)
+
+
+					//Отрисовка списка новостей
+					for (var i = 0; i != result.feed.entries.length; i++) {
+						var entry = result.feed.entries[i];
+
+						//создание дополнительного контейнера для группировки отдельных новостей по контейнерам
+						var div = document.createElement("div");
+						var h4 = document.createElement("h4");
+
+						var p2 = document.createElement("p")
+						var date = document.createElement('p')
+						var a = document.createElement("a")
+
+						//i в начале выступает вспомогательным элементом для того, чтоб при клике можно было найти нужную запись и вывести её в предпросмотр
+						div.className = i +' feed-item' //настройка группировочного контейнера
+					  	h4.className = i + ' parsedNews'; //настройка названия новости
+					  	p2.className = i; //краткое описание новости
+					  	date.className = i +' feed-date' //дата публикации
+					  	a.className = i +' feedHref' //ссылка на источник
+					  	a.text = 'Источник →' //Текст для ссылки на источник
+					  	a.href = entry.link //присвоение ссылки на источник
+					  	a.setAttribute('target','blank') //открывать источник в новом окне
+
+
+					  	//отслеживает, на какую новость нажал пользователь и выводит её на раздел предпросмотра
+					  	div.addEventListener('click',  function( e ) {
+							console.log(e.target.className[0])
+							$('.feed-news__watch-header').text($('.' + e.target.className[0] + '.parsedNews').text())
+							$('.feed-news__watch-content').text(result.feed.entries[e.target.className[0]].content)
+							$('.feed-news__watch-content').text(result.feed.entries[e.target.className[0]].image)
+					  	})
+
+
+					  	//вставка элементов на страницу
+					  	h4.appendChild(document.createTextNode(entry.title));
+
+					  	p2.appendChild(document.createTextNode(entry.contentSnippet.slice(0, 100) + '...'));
+					  	date.appendChild(document.createTextNode(entry.publishedDate))
+
+					  	container.appendChild(div);
+					  	div.appendChild(h4)
+
+					  	div.appendChild(p2)
+					  	div.appendChild(date)
+					  	div.appendChild(a)
+					  	console.log(entry)
+					}
+					//Очистка от предыдущих новостей, чтобы не повторялись
+					function clear(){
+						container.innerHTML = ''
+						document.getElementById('feed-news__watch').innerHTML = ''
+					}
+				}
+			});
+		}
+	}
+	
+	//источник mailru
+	//по нажатию на вкладку "mailru" новости очищаются, после чего выводится список последних новостей, полученных через rss google js api
+	function mailru(){
+		$(document).ready(function(){
+			google.setOnLoadCallback(initialize);
+			$('#mailru').css('color','#ff5900')
+			$('#edaily').css('color','black')
+		})
+		
+		function initialize() {
+		
+			google.load("feeds", "5");
+      		var feed = new google.feeds.Feed("https://news.mail.ru/rss/");
+      		feed.load(function(result) {
+		  
+				if (!result.error) {
+					var container = document.getElementById("feed");
+
+					//Вызов функции очистки имеющегося контента, чтобы при переключении источника контент не вставлялся дважды
+					clear()
+					var entry = result.feed.entries[0];
+
+
+
+					var fastWatch = document.getElementById("feed-news__watch")
+					var h4_2 = document.createElement("h4")
+					h4_2.className = 'feed-news__watch-header';
+					var watchContent = document.createElement("p")
+					watchContent.className = 'feed-news__watch-content'
+
+
+					h4_2.appendChild(document.createTextNode(entry.title));
+					fastWatch.appendChild(h4_2)
+					watchContent.appendChild(document.createTextNode(entry.content))
+					fastWatch.appendChild(watchContent)
+
+
+
+					for (var i = 0; i != result.feed.entries.length; i++) {
+					var entry = result.feed.entries[i];
+					var div = document.createElement("div");
+					var h4 = document.createElement("h4");
+
+					var p2 = document.createElement("p")
+					var date = document.createElement('p')
+					var a = document.createElement("a")
+
+					div.className = i +' feed-item'
+					h4.className = i + ' parsedNews';
+					p2.className = i;
+					date.className = i +' feed-date'
+					a.className = i +' feedHref'
+					a.text = 'Источник →'
+					a.href = entry.link
+					a.setAttribute('target','blank')
+
+
+
+					div.addEventListener('click',  function( e ) {
+						console.log(e.target.className[0])
+						$('.feed-news__watch-header').text($('.' + e.target.className[0] + '.parsedNews').text())
+						$('.feed-news__watch-content').text(result.feed.entries[e.target.className[0]].content)
+						$('.feed-news__watch-content').text(result.feed.entries[e.target.className[0]].image)
+					})
+
+
+
+						h4.appendChild(document.createTextNode(entry.title));
+
+						p2.appendChild(document.createTextNode(entry.contentSnippet.slice(0, 100) + '...'));
+						date.appendChild(document.createTextNode(entry.publishedDate))
+
+						container.appendChild(div);
+						div.appendChild(h4)
+
+						div.appendChild(p2)
+						div.appendChild(date)
+						div.appendChild(a)
+
+						console.log(entry)
+					}
+					//Очистка от предыдущих новостей, чтобы не повторялись
+					function clear(){
+						container.innerHTML = ''
+						document.getElementById('feed-news__watch').innerHTML = ''
+					}
+				}
+			});
+		}
+	}
+</script>
+
+		  
+<h1 style='text-align:center; margin:2rem;'><b>Новости мира</b></h1>
+<div class="container">
+	<div class="row">
+		<a style='margin:5px;cursor:pointer;' onClick='edaily()' id='edaily'>
+			edaily.com
+		</a>
+		<a style='margin:5px;cursor:pointer;' onClick='mailru()' id='mailru'>
+			mail.ru
+		</a>
+	</div>
+	<div class="row">
+		<div class="col-lg-4">
+			<div style="min-height:-webkit-fill-available; overflow: auto; max-height:863px;display:flex;" >
+				<div id="feed">
+					
+				</div>
+			</div>
+		</div>
+		<div class="col-lg-8">
+			<div id='feed-news__watch'>
+
+			</div>
+		</div>
+	</div>
+</div>
